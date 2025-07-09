@@ -43,7 +43,7 @@ async def run_bot():
     app = ApplicationBuilder().token(TELEGRAM_TOKEN).build()
     app.add_handler(CommandHandler("start", start))
     app.add_handler(MessageHandler(filters.TEXT & (~filters.COMMAND), handle_message))
-    # استفاده از webhook با پورت
+    # استفاده از webhook
     await app.run_webhook(
         listen="0.0.0.0",
         port=PORT,
