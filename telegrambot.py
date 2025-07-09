@@ -39,16 +39,23 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         print(f"Error: {e}")
         await update.message.reply_text('مشکلی پیش اومد! 😥')
 
-async def run_bot():
+def main():
+    # گرفتن حلقه رویداد موجود
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+
     app = ApplicationBuilder().token(TELEGRAM_TOKEN).build()
     app.add_handler(CommandHandler("start", start))
     app.add_handler(MessageHandler(filters.TEXT & (~filters.COMMAND), handle_message))
-    # استفاده از webhook
-    await app.run_webhook(
-        listen="0.0.0.0",
-        port=PORT,
-        url_path=TELEGRAM_TOKEN
+
+    # اجرای Webhook
+    loop.run_until_complete(
+        app.run_webhook(
+            listen="0.0.0.0",
+            port=PORT,
+            url_path=TELEGRAM_TOKEN
+        )
     )
 
 if __name__ == "__main__":
-    asyncio.run(run_bot())
+    main()
