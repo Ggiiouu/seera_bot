@@ -7,7 +7,7 @@ from huggingface_hub import InferenceClient
 # توکن‌ها از متغیر محیطی
 TELEGRAM_TOKEN = os.environ.get("TELEGRAM_TOKEN")
 HF_API_KEY = os.environ.get("HF_API_KEY")
-PORT = int(os.environ.get("PORT", 8443))  # پورت پیش‌فرض
+PORT = int(os.environ.get("PORT", 8443))  # پورت برای Render
 
 client = InferenceClient(api_key=HF_API_KEY)
 user_conversations = {}
@@ -40,22 +40,13 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text('مشکلی پیش اومد! 😥')
 
 def main():
-    # گرفتن حلقه رویداد موجود
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
-
     app = ApplicationBuilder().token(TELEGRAM_TOKEN).build()
     app.add_handler(CommandHandler("start", start))
     app.add_handler(MessageHandler(filters.TEXT & (~filters.COMMAND), handle_message))
-
-    # اجرای Webhook
-    loop.run_until_complete(
-        app.run_webhook(
-            listen="0.0.0.0",
-            port=PORT,
-            url_path=TELEGRAM_TOKEN
-        )
-    )
+    # اجرای Polling با حلقه دستی
+    loop.run_until_complete(app.run_polling())
 
 if __name__ == "__main__":
     main()
